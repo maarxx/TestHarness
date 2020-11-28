@@ -40,6 +40,7 @@ namespace TestHarness
             myList.Sort((pair1, pair2) => -1 * pair1.Value.CompareTo(pair2.Value));
             foreach (KeyValuePair<string, float> e in myList)
             {
+                if (e.Value < 300) { continue; }
                 Log.Message(e.Key + ": " + e.Value);
             }
         }
