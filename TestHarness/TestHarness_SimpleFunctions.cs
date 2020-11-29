@@ -26,17 +26,17 @@ namespace TestHarness
         {
             List<KeyValuePair<float, string>> socialFightChances = new List<KeyValuePair<float, string>>();
             List<Pawn> colonists = Find.CurrentMap.mapPawns.FreeColonists;
-            for (int i = 0; i < colonists.Count; i++)
+            foreach (Pawn p1 in colonists)
             {
-                for (int j = i+1; j < colonists.Count; j++)
+                foreach (Pawn p2 in colonists)
                 {
-                    Pawn p1 = colonists[i];
-                    Pawn p2 = colonists[j];
-                    socialFightChances.Add(new KeyValuePair<float, string>(p1.interactions.SocialFightChance(InteractionDefOf.Insult, p2), p1.Name.ToStringShort + "<->" + p2.Name.ToStringShort));
+                    if (p1 != p2)
+                    {
+                        socialFightChances.Add(new KeyValuePair<float, string>(p1.interactions.SocialFightChance(InteractionDefOf.Insult, p2), p1.Name.ToStringShort + " -> " + p2.Name.ToStringShort));
+                    }
                 }
             }
-            //List<KeyValuePair<float, string>> sorted = socialFightChances.ToList();
-            socialFightChances.Sort((x, y) => (y.Key.CompareTo(x.Key)));
+            socialFightChances.Sort((x, y) => (x.Key.CompareTo(y.Key)));
             foreach (KeyValuePair<float, string> chance in socialFightChances)
             {
                 Log.Message(chance.Key + " for " + chance.Value);
