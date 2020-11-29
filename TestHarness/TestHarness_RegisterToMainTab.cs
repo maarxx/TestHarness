@@ -64,6 +64,15 @@ namespace TestHarness
                     new TestHarness_WealthPrinter().printWealth();
                 }
             ));
+            buttons.Add(new ModButton_Text(
+                delegate
+                {
+                    return "Debug Print:" + Environment.NewLine + "Social Fight Chances";
+                },
+                delegate {
+                    TestHarness_SimpleFunctions.printSortedSocialFightChances();
+                }
+            ));
 
             columns.Add(buttons);
 
