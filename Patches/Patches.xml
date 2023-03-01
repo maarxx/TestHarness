@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<Patch>
+
+<Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Apparel_TribalA"]/thingCategories</xpath>
+    <value>
+      <thingCategories>
+        <li>BasicClothing</li>
+      </thingCategories>
+    </value>
+</Operation>
+
+<Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Apparel_Burka"]/thingCategories</xpath>
+    <value>
+      <thingCategories>
+        <li>BasicClothing</li>
+      </thingCategories>
+    </value>
+</Operation>
+
+<Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Apparel_CollarShirt"]/thingCategories</xpath>
+    <value>
+      <thingCategories>
+        <li>BasicClothing</li>
+      </thingCategories>
+    </value>
+</Operation>
+
+<Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Apparel_Duster"]/thingCategories</xpath>
+    <value>
+      <thingCategories>
+        <li>BasicClothing</li>
+      </thingCategories>
+    </value>
+</Operation>
+
+<Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Apparel_Jacket"]/thingCategories</xpath>
+    <value>
+      <thingCategories>
+        <li>BasicClothing</li>
+      </thingCategories>
+    </value>
+</Operation>
+
+<Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Apparel_Pants"]/thingCategories</xpath>
+    <value>
+      <thingCategories>
+        <li>BasicClothing</li>
+      </thingCategories>
+    </value>
+</Operation>
+
+<Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Apparel_Parka"]/thingCategories</xpath>
+    <value>
+      <thingCategories>
+        <li>BasicClothing</li>
+      </thingCategories>
+    </value>
+</Operation>
+
+<Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Apparel_Robe"]/thingCategories</xpath>
+    <value>
+      <thingCategories>
+        <li>BasicClothing</li>
+      </thingCategories>
+    </value>
+</Operation>
+
+<Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Apparel_BasicShirt"]/thingCategories</xpath>
+    <value>
+      <thingCategories>
+        <li>BasicClothing</li>
+      </thingCategories>
+    </value>
+</Operation>
+
+
+
+<Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Apparel_KidPants"]</xpath>
+    <value>
+      <thingCategories Inherit="False">
+        <li>BasicClothing</li>
+      </thingCategories>
+    </value>
+</Operation>
+
+<Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Apparel_KidParka"]</xpath>
+    <value>
+      <thingCategories Inherit="False">
+        <li>BasicClothing</li>
+      </thingCategories>
+    </value>
+</Operation>
+
+<Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Apparel_KidRomper"]</xpath>
+    <value>
+      <thingCategories Inherit="False">
+        <li>BasicClothing</li>
+      </thingCategories>
+    </value>
+</Operation>
+
+<Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Apparel_KidShirt"]</xpath>
+    <value>
+      <thingCategories Inherit="False">
+        <li>BasicClothing</li>
+      </thingCategories>
+    </value>
+</Operation>
+
+<Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Apparel_KidTribal"]</xpath>
+    <value>
+      <thingCategories Inherit="False">
+        <li>BasicClothing</li>
+      </thingCategories>
+    </value>
+</Operation>
+
+
+
+<Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Apparel_BowlerHat"]</xpath>
+    <value>
+      <thingCategories Inherit="False">
+        <li>BasicClothingHeadgear</li>
+      </thingCategories>
+    </value>
+</Operation>
+
+<Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Apparel_Broadwrap"]</xpath>
+    <value>
+      <thingCategories Inherit="False">
+        <li>BasicClothingHeadgear</li>
+      </thingCategories>
+    </value>
+</Operation>
+
+<Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Apparel_CowboyHat"]</xpath>
+    <value>
+      <thingCategories Inherit="False">
+        <li>BasicClothingHeadgear</li>
+      </thingCategories>
+    </value>
+</Operation>
+
+<Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Apparel_Flophat"]</xpath>
+    <value>
+      <thingCategories Inherit="False">
+        <li>BasicClothingHeadgear</li>
+      </thingCategories>
+    </value>
+</Operation>
+
+<Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Apparel_Headwrap"]</xpath>
+    <value>
+      <thingCategories Inherit="False">
+        <li>BasicClothingHeadgear</li>
+      </thingCategories>
+    </value>
+</Operation>
+
+<Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Apparel_HatHood"]</xpath>
+    <value>
+      <thingCategories Inherit="False">
+        <li>BasicClothingHeadgear</li>
+      </thingCategories>
+    </value>
+</Operation>
+
+<Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Apparel_Shadecone"]</xpath>
+    <value>
+      <thingCategories Inherit="False">
+        <li>BasicClothingHeadgear</li>
+      </thingCategories>
+    </value>
+</Operation>
+
+<Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Apparel_Slicecap"]</xpath>
+    <value>
+      <thingCategories Inherit="False">
+        <li>BasicClothingHeadgear</li>
+      </thingCategories>
+    </value>
+</Operation>
+
+<Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Apparel_Tailcap"]</xpath>
+    <value>
+      <thingCategories Inherit="False">
+        <li>BasicClothingHeadgear</li>
+      </thingCategories>
+    </value>
+</Operation>
+
+<Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Apparel_TribalHeaddress"]</xpath>
+    <value>
+      <thingCategories Inherit="False">
+        <li>BasicClothingHeadgear</li>
+      </thingCategories>
+    </value>
+</Operation>
+
+<Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Apparel_Tuque"]</xpath>
+    <value>
+      <thingCategories Inherit="False">
+        <li>BasicClothingHeadgear</li>
+      </thingCategories>
+    </value>
+</Operation>
+
+<Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Apparel_VisageMask"]</xpath>
+    <value>
+      <thingCategories Inherit="False">
+        <li>BasicClothingHeadgear</li>
+      </thingCategories>
+    </value>
+</Operation>
+
+</Patch>

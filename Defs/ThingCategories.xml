@@ -1,0 +1,12 @@
+<Defs>
+  <ThingCategoryDef>
+    <defName>BasicClothing</defName>
+    <label>basic clothing</label>
+    <parent>Apparel</parent>
+  </ThingCategoryDef>
+  <ThingCategoryDef>
+    <defName>BasicClothingHeadgear</defName>
+    <label>headgear</label>
+    <parent>BasicClothing</parent>
+  </ThingCategoryDef>
+</Defs>
