@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using ModButtons;
+using RimWorld;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,6 +29,46 @@ namespace TestHarness
         static void Prefix(MainTabWindow_ModButtons __instance, ref Rect canvas)
         {
             TestHarness_RegisterToMainTab.ensureMainTabRegistered();
+        }
+    }
+
+    [HarmonyPatch(typeof(RelationsUtility))]
+    [HarmonyPatch("RomanceOption")]
+    class Patch_RelationsUtility_RomanceOption
+    {
+
+        static bool Prefix(Pawn initiator, Pawn romanceTarget, out FloatMenuOption option, out float chance, ref bool __result)
+        {
+            if (!AttractedToGender(initiator, romanceTarget.gender))
+            {
+                option = null;
+                chance = 0f;
+                __result = false;
+                return false;
+            }
+            AcceptanceReport acceptanceReport = RomanceEligiblePair(initiator, romanceTarget, forOpinionExplanation: false);
+            if (!acceptanceReport.Accepted && acceptanceReport.Reason.NullOrEmpty())
+            {
+                option = null;
+                chance = 0f;
+                __result = false;
+                return false;
+            }
+            if (acceptanceReport.Accepted)
+            {
+                chance = InteractionWorker_RomanceAttempt.SuccessChance(initiator, romanceTarget, 1f);
+                string label = string.Format("{0} ({1} {2})", romanceTarget.LabelShort, chance.ToStringPercent(), "chance".Translate());
+                option = new FloatMenuOption(label, delegate
+                {
+                    GiveRomanceJobWithWarning(initiator, romanceTarget);
+                }, MenuOptionPriority.Low);
+                __result = true;
+                return false;
+            }
+            chance = 0f;
+            option = new FloatMenuOption(romanceTarget.LabelShort + " (" + acceptanceReport.Reason + ")", null);
+            __result = false;
+            return false;
         }
     }
 
