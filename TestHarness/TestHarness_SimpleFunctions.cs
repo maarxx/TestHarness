@@ -85,7 +85,6 @@ namespace TestHarness
 
         private static IEnumerable<string> tryGetStrings(StockGenerator sg)
         {
-            //Log.Message(sg.ToString());
             if      (sg is StockGenerator_BuySingleDef) { yield return (sg as StockGenerator_BuySingleDef).thingDef.defName; }
             else if (sg is StockGenerator_BuyTradeTag)  { yield return (sg as StockGenerator_BuyTradeTag).tag; }
             else if (sg is StockGenerator_Tag)          { yield return (sg as StockGenerator_Tag).tradeTag; }
