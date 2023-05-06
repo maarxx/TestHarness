@@ -88,10 +88,11 @@ namespace TestHarness
             //Log.Message(sg.ToString());
             if      (sg is StockGenerator_BuySingleDef) { yield return (sg as StockGenerator_BuySingleDef).thingDef.defName; }
             else if (sg is StockGenerator_BuyTradeTag)  { yield return (sg as StockGenerator_BuyTradeTag).tag; }
+            else if (sg is StockGenerator_Tag)          { yield return (sg as StockGenerator_Tag).tradeTag; }
+            else if (sg is StockGenerator_MarketValue)  { yield return (sg as StockGenerator_MarketValue).tradeTag; }
             else if (sg is StockGenerator_Category)     { yield return (sg.GetType().GetField("categoryDef", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(sg) as ThingCategoryDef).defName; }
             else if (sg is StockGenerator_MultiDef)     { foreach (ThingDef td in sg.GetType().GetField("thingDefs", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(sg) as List<ThingDef>) { yield return td.defName; } }
             else if (sg is StockGenerator_SingleDef)    { yield return (sg.GetType().GetField("thingDef", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(sg) as ThingDef).defName; }
-            else if (sg is StockGenerator_Tag)          { yield return (sg as StockGenerator_Tag).tradeTag; }
             else                                        { yield return sg.GetType().Name;  }
         }
     }
