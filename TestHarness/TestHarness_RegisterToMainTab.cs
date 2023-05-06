@@ -73,6 +73,15 @@ namespace TestHarness
                     TestHarness_SimpleFunctions.printSortedSocialFightChances();
                 }
             ));
+            buttons.Add(new ModButton_Text(
+                delegate
+                {
+                    return "Debug Print:" + Environment.NewLine + "Trader And Item Categories";
+                },
+                delegate {
+                    TestHarness_SimpleFunctions.printTradersAndItemCategories();
+                }
+            ));
 
             columns.Add(buttons);
 
