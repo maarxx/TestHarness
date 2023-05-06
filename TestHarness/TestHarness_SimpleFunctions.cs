@@ -55,9 +55,12 @@ namespace TestHarness
                 HashSet<string> theseAcceptedThings = new HashSet<string>();
                 foreach (StockGenerator sg in tkd.stockGenerators)
                 {
-                    string accepted = tryGetString(sg);
-                    theseAcceptedThings.Add(accepted);
-                    allAcceptedThings.Add(accepted);
+                    List<string> strings = tryGetStrings(sg).ToList();
+                    foreach (string acceptedThing in tryGetStrings(sg))
+                    {
+                        theseAcceptedThings.Add(acceptedThing);
+                        allAcceptedThings.Add(acceptedThing);
+                    }
                 }
                 maps.Add(traderKindDefName, theseAcceptedThings);
             }
@@ -72,24 +75,24 @@ namespace TestHarness
                 string traderKindDef = kvp.Key;
                 HashSet<string> acceptedThings = kvp.Value;
                 string row = traderKindDef + ",";
-                foreach (string s in allAcceptedThings)
+                foreach (string acceptedThing in allAcceptedThings)
                 {
-                    row = row + (acceptedThings.Contains(s) ? "x" : "_") + ",";
+                    row = row + (acceptedThings.Contains(acceptedThing) ? acceptedThing : "_") + ",";
                 }
                 Log.Message(row);
             }
         }
 
-        private static string tryGetString(StockGenerator sg)
+        private static IEnumerable<string> tryGetStrings(StockGenerator sg)
         {
-            Log.Message(sg.ToString());
-            if      (sg is StockGenerator_BuySingleDef) { return (sg as StockGenerator_BuySingleDef).thingDef.defName; }
-            else if (sg is StockGenerator_BuyTradeTag)  { return (sg as StockGenerator_BuyTradeTag).tag; }
-            else if (sg is StockGenerator_Category)     { return (sg.GetType().GetField("categoryDef", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(sg) as ThingCategoryDef).defName; }
-            else if (sg is StockGenerator_MultiDef)     { return String.Join(",", (sg.GetType().GetField("thingDefs", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(sg) as List<ThingDef>)); }
-            else if (sg is StockGenerator_SingleDef)    { return (sg.GetType().GetField("thingDef", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(sg) as ThingDef).defName; }
-            else if (sg is StockGenerator_Tag)          { return (sg as StockGenerator_Tag).tradeTag; }
-            else                                        { return sg.GetType().Name;  }
+            //Log.Message(sg.ToString());
+            if      (sg is StockGenerator_BuySingleDef) { yield return (sg as StockGenerator_BuySingleDef).thingDef.defName; }
+            else if (sg is StockGenerator_BuyTradeTag)  { yield return (sg as StockGenerator_BuyTradeTag).tag; }
+            else if (sg is StockGenerator_Category)     { yield return (sg.GetType().GetField("categoryDef", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(sg) as ThingCategoryDef).defName; }
+            else if (sg is StockGenerator_MultiDef)     { foreach (ThingDef td in sg.GetType().GetField("thingDefs", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(sg) as List<ThingDef>) { yield return td.defName; } }
+            else if (sg is StockGenerator_SingleDef)    { yield return (sg.GetType().GetField("thingDef", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(sg) as ThingDef).defName; }
+            else if (sg is StockGenerator_Tag)          { yield return (sg as StockGenerator_Tag).tradeTag; }
+            else                                        { yield return sg.GetType().Name;  }
         }
     }
 }
