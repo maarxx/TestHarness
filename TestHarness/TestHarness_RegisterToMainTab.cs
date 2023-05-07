@@ -79,7 +79,7 @@ namespace TestHarness
                     return "Debug Print:" + Environment.NewLine + "Trader And Item Categories";
                 },
                 delegate {
-                    TestHarness_SimpleFunctions.printTradersAndItemCategories();
+                    TestHarness_TraderKindDefExtractor.printTradersAndItemCategories();
                 }
             ));
 
