@@ -26,10 +26,9 @@ namespace TestHarness
             {
                 foreach (StockGenerator sg in tkd.stockGenerators)
                 {
-                    List<string> strings = tryGetStrings(sg).ToList();
-                    foreach (string acceptedThing in tryGetStrings(sg))
+                    foreach (KeyValuePair<string, string> kvp in tryGetStringsV2(sg))
                     {
-                        setAllAcceptedThings.Add(acceptedThing);
+                        setAllAcceptedThings.Add(kvp.Key);
                     }
                 }
             }
@@ -191,126 +190,6 @@ namespace TestHarness
                 return oldVal;
             }
             return oldVal + "+" + newVal;
-        }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        public static void printTradersAndItemCategories()
-        {
-            List<TraderKindDef> traderKindDefs = DefDatabase<TraderKindDef>.AllDefsListForReading;
-            traderKindDefs = traderKindDefs.OrderBy(tdk => Array.IndexOf(seededRowOrder, tdk.defName)).ToList();
-            HashSet<string> setAllAcceptedThings = new HashSet<string>();
-            Dictionary<string, HashSet<string>> maps = new Dictionary<string, HashSet<string>>();
-
-            foreach (TraderKindDef tkd in traderKindDefs)
-            {
-                string traderKindDefName = tkd.defName;
-                HashSet<string> theseAcceptedThings = new HashSet<string>();
-                foreach (StockGenerator sg in tkd.stockGenerators)
-                {
-                    List<string> strings = tryGetStrings(sg).ToList();
-                    foreach (string acceptedThing in tryGetStrings(sg))
-                    {
-                        theseAcceptedThings.Add(acceptedThing);
-                        setAllAcceptedThings.Add(acceptedThing);
-                    }
-                }
-                maps.Add(traderKindDefName, theseAcceptedThings);
-            }
-
-            List<string> allAcceptedThings = setAllAcceptedThings.OrderBy(str => Array.IndexOf(seededColumnOrder, str) >= 0 ? Array.IndexOf(seededColumnOrder, str) : int.MaxValue).ToList();
-
-            string header = "_,";
-            foreach (string s in allAcceptedThings)
-            {
-                header = header + s + ",";
-            }
-            Log.Message(header);
-
-            foreach (KeyValuePair<string, HashSet<string>> kvp in maps)
-            {
-                string traderKindDef = kvp.Key;
-                HashSet<string> acceptedThings = kvp.Value;
-                string row = traderKindDef + ",";
-                TraderKindDef again = DefDatabase<TraderKindDef>.GetNamed(traderKindDef);
-                string newString = "_";
-                foreach (string acceptedThing in allAcceptedThings)
-                {
-                    newString = "_";
-                    if (acceptedThings.Contains(acceptedThing))
-                    {
-                        newString = acceptedThing;
-                    }
-                    else
-                    {
-                        ThingDef thingOrNull = DefDatabase<ThingDef>.GetNamedSilentFail(acceptedThing);
-                        if (thingOrNull != null)
-                        {
-                            foreach (StockGenerator sg in again.stockGenerators)
-                            {
-                                if (sg.HandlesThingDef(thingOrNull))
-                                {
-                                    newString = "BUY";
-                                    //break;
-                                }
-                            }
-                        }
-                    }
-                    row = row + newString + ",";
-                }
-                Log.Message(row);
-            }
-        }
-
-        private static IEnumerable<string> tryGetStrings(StockGenerator sg)
-        {
-            if (sg is StockGenerator_BuySingleDef) { yield return (sg as StockGenerator_BuySingleDef).thingDef.defName; }
-            else if (sg is StockGenerator_BuyTradeTag) { yield return (sg as StockGenerator_BuyTradeTag).tag; }
-            else if (sg is StockGenerator_Tag) { yield return (sg as StockGenerator_Tag).tradeTag; }
-            else if (sg is StockGenerator_MarketValue) { yield return (sg as StockGenerator_MarketValue).tradeTag; }
-            else if (sg is StockGenerator_Category) { yield return (sg.GetType().GetField("categoryDef", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(sg) as ThingCategoryDef).defName; }
-            else if (sg is StockGenerator_SingleDef) { yield return (sg.GetType().GetField("thingDef", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(sg) as ThingDef).defName; }
-            else if (sg is StockGenerator_Animals)
-            {
-                foreach (string s in sg.GetType().GetField("tradeTagsSell", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(sg) as List<string>)
-                {
-                    yield return s;
-                }
-                foreach (string s in sg.GetType().GetField("tradeTagsBuy", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(sg) as List<string>)
-                {
-                    yield return "Buy_" + s;
-                }
-            }
-            else if (sg is StockGenerator_MultiDef)
-            {
-                foreach (ThingDef td in sg.GetType().GetField("thingDefs", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(sg) as List<ThingDef>)
-                {
-                    yield return td.defName;
-                }
-            }
-            else
-            {
-                yield return sg.GetType().Name;
-            }
         }
 
         private static string[] seededRowOrder = new string[] {
