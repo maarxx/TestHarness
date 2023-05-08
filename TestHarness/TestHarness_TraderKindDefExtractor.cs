@@ -48,9 +48,31 @@ namespace TestHarness
                 string traderKindDef = kvp.Key;
                 HashSet<string> acceptedThings = kvp.Value;
                 string row = traderKindDef + ",";
+                TraderKindDef again = DefDatabase<TraderKindDef>.GetNamed(traderKindDef);
+                string newString = "_";
                 foreach (string acceptedThing in allAcceptedThings)
                 {
-                    row = row + (acceptedThings.Contains(acceptedThing) ? acceptedThing : "_") + ",";
+                    newString = "_";
+                    if (acceptedThings.Contains(acceptedThing))
+                    {
+                        newString = acceptedThing;
+                    }
+                    else
+                    {
+                        ThingDef thingOrNull = DefDatabase<ThingDef>.GetNamedSilentFail(acceptedThing);
+                        if (thingOrNull != null)
+                        {
+                            foreach (StockGenerator sg in again.stockGenerators)
+                            {
+                                if (sg.HandlesThingDef(thingOrNull))
+                                {
+                                    newString = "BUY";
+                                    //break;
+                                }
+                            }
+                        }
+                    }
+                    row = row + newString + ",";
                 }
                 Log.Message(row);
             }
