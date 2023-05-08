@@ -49,12 +49,10 @@ namespace TestHarness
                 table.Add(row, columnsAndValues);
             }
 
-            // iterate all of the TraderKindDefs again
             foreach (var row in table)
             {
                 TraderKindDef tkd = row.Key;
                 Dictionary<string, string> columnValues = row.Value;
-                // iterate each of their StockGenerators again
                 foreach (StockGenerator sg in tkd.stockGenerators)
                 {
                     foreach (KeyValuePair<string,string> kvp in tryGetStringsV2(sg))
@@ -66,6 +64,63 @@ namespace TestHarness
                 }
             }
 
+            //Log.Message("1");
+            Dictionary<string, string> parents = new Dictionary<string, string>();
+            foreach (string s in allAcceptedThings)
+            {
+                //Log.Message("1.1 // " + s);
+                ThingDef td = DefDatabase<ThingDef>.GetNamedSilentFail(s);
+                if (td != null)
+                {
+                    string[] tradeTags = td.tradeTags?.ToArray() ?? new string[0];
+                    foreach (string tradeTag in tradeTags)
+                    {
+                        //Log.Message("1.3 // " + tradeTag);
+                        foreach (string other in allAcceptedThings)
+                        {
+                            if (s == other) { continue; }
+                            if (tradeTag == other)
+                            {
+                                Log.Message(s + "->" + other);
+                                parents.SetOrAdd(s, other);
+                            }
+                        }
+                    }
+
+                    //Log.Message("1.4 // " + td.thingCategories);
+                    foreach (ThingCategoryDef tcd in td.thingCategories)
+                    {
+                        string category = tcd.defName;
+                        //Log.Message("1.5 // " + category);
+                        foreach (string other in allAcceptedThings)
+                        {
+                            if (s == other) { continue; }
+                            if (category == other)
+                            {
+                                Log.Message(s + "->" + other);
+                                parents.SetOrAdd(s, other);
+                            }
+                        }
+                    }
+                }
+            }
+
+            //Log.Message("2");
+            foreach (var row in table)
+            {
+                TraderKindDef tkd = row.Key;
+                Dictionary<string, string> columnValues = row.Value;
+                foreach (var link in parents)
+                {
+                    string childKey = link.Key;
+                    string parentKey = link.Value;
+                    string childValue = columnValues.TryGetValue(childKey);
+                    string parentValue = columnValues.TryGetValue(parentKey);
+                    columnValues.SetOrAdd(childKey, smushValues(childValue, parentValue));
+                }
+            }
+
+            //Log.Message("3");
             string header = "TraderKindDef,";
             foreach (string s in allAcceptedThings)
             {
