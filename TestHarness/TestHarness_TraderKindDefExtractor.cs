@@ -178,9 +178,11 @@ namespace TestHarness
             else if (sgType == typeof(StockGenerator_SingleDef))
             {
                 StockGenerator_SingleDef typed = (StockGenerator_SingleDef)sg;
+                string value = typed.countRange.ToString().Replace("~", "-");
+                if (value == "0-0") { value = "?"; }
                 yield return pair(
                     ((ThingDef)typed.GetType().GetField("thingDef", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(typed)).defName,
-                    typed.countRange.ToString().Replace("~", "-")
+                    value
                 );
             }
             else if (sgType == typeof(StockGenerator_Animals))
@@ -224,7 +226,7 @@ namespace TestHarness
             {
                 yield return pair(
                     sg.GetType().Name,
-                    "*"
+                    "?"
                 );
             }
         }
@@ -240,34 +242,50 @@ namespace TestHarness
             {
                 return oldVal;
             }
-            else if (newVal.Contains("~"))
+            else if (oldVal.Contains("-") && !oldVal.Contains("~"))
             {
-                if (oldVal.Contains("-"))
+                if (newVal.Contains("-") || newVal.Contains("~"))
                 {
-                    return oldVal + " + *";
+                    return oldVal + " +*";
                 }
-                else if (keyVal != null)
+                return oldVal;
+            }
+            else if (oldVal.Contains("~"))
+            {
+                if (newVal.Contains("-") && !newVal.Contains("~"))
                 {
-                    return keyVal;
+                    return newVal + " +*";
                 }
-                else
+                else if (newVal.Contains("~"))
+                {
+                    return oldVal + " +*";
+                }
+                return oldVal;
+            }
+            else if ((oldVal == "" || oldVal == "BUY") && newVal.Contains("~") && keyVal != null)
+            {
+                return keyVal;
+            }
+            else if (oldVal == "BUY")
+            {
+                if (newVal.Contains("~") || newVal.Contains("-"))
                 {
                     return newVal;
                 }
+            }
+            else if (oldVal == "?")
+            {
+                if (newVal.Contains("-") || newVal.Contains("~"))
+                {
+                    return oldVal + " +*";
+                }
+                return oldVal;
             }
             else if (oldVal == "")
             {
                 return newVal;
             }
-            else if (oldVal == "BUY")
-            {
-                return newVal;
-            }
-            else if (newVal == "BUY" && oldVal != "" && oldVal != "BUY")
-            {
-                return oldVal;
-            }
-            Log.Message(oldVal + " // " + newVal + " // " + keyVal);
+            Log.Message("POSSIBLE BUG SMUSHING VALUES: " + oldVal + " // " + newVal + " // " + keyVal);
             return "ERROR";
         }
 
