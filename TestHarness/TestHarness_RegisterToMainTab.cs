@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using ModButtons;
+using RimWorld;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using Verse;
+using Verse.AI;
 
 namespace TestHarness
 {
@@ -28,6 +30,32 @@ namespace TestHarness
         static void Prefix(MainTabWindow_ModButtons __instance, ref Rect canvas)
         {
             TestHarness_RegisterToMainTab.ensureMainTabRegistered();
+        }
+    }
+    // RimWorld.WorkGiver_DoBill
+    //public override Job JobOnThing(Pawn pawn, Thing thing, bool forced = false)
+    [HarmonyPatch(typeof(WorkGiver_DoBill))]
+    [HarmonyPatch("JobOnThing")]
+    class Patch_WorkGiver_DoBill_JobOnThing
+    {
+        static bool Prefix(WorkGiver_DoBill __instance, Pawn pawn, Thing thing, bool forced, Job __result)
+        {
+            CompAssignableToPawn catp = thing.TryGetComp<CompAssignableToPawn>();
+            if (catp != null)
+            {
+                List<Pawn> assignedPawns = catp.AssignedPawnsForReading;
+                if (assignedPawns.Count == 0)
+                {
+                    return true;
+                }
+                else if (assignedPawns.Contains(pawn))
+                {
+                    return true;
+                }
+                __result = null;
+                return false;
+            }
+            return true;
         }
     }
 
