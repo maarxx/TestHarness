@@ -175,6 +175,14 @@ namespace TestHarness
                     ((IntRange)typed.GetType().GetField("thingDefCountRange", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(typed)).ToString()
                 );
             }
+            else if (sgType == typeof(StockGenerator_ReinforcedBarrels))
+            {
+                StockGenerator_ReinforcedBarrels typed = (StockGenerator_ReinforcedBarrels)sg;
+                yield return pair(
+                    typed.GetType().Name,
+                    typed.countRange.ToString().Replace("~", "-")
+                );
+            }
             else if (sgType == typeof(StockGenerator_SingleDef))
             {
                 StockGenerator_SingleDef typed = (StockGenerator_SingleDef)sg;
