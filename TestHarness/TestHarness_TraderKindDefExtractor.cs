@@ -110,7 +110,7 @@ namespace TestHarness
                     string parentValue = columnValues.TryGetValue(parentKey);
                     string childKey = link.Value;
                     string childValue = columnValues.TryGetValue(childKey);
-                    columnValues.SetOrAdd(childKey, smushValues(childValue, parentValue));
+                    columnValues.SetOrAdd(childKey, smushValues(childValue, parentValue, parentKey));
                 }
             }
 
@@ -234,11 +234,26 @@ namespace TestHarness
             return new KeyValuePair<string, string>(key, value);
         }
 
-        private static string smushValues(string oldVal, string newVal)
+        private static string smushValues(string oldVal, string newVal, string keyVal = null)
         {
             if (newVal == "")
             {
                 return oldVal;
+            }
+            else if (newVal.Contains("~"))
+            {
+                if (oldVal.Contains("-"))
+                {
+                    return oldVal + " + *";
+                }
+                else if (keyVal != null)
+                {
+                    return keyVal;
+                }
+                else
+                {
+                    return newVal;
+                }
             }
             else if (oldVal == "")
             {
@@ -252,7 +267,8 @@ namespace TestHarness
             {
                 return oldVal;
             }
-            return oldVal + "+" + newVal;
+            Log.Message(oldVal + " // " + newVal + " // " + keyVal);
+            return "ERROR";
         }
 
         private static string[] seededRowOrder = new string[] {
@@ -330,8 +346,8 @@ namespace TestHarness
             "FoodRaw",
             "Kibble",
             "Beer",
-            "MealSurvivalPack",
             "FoodMeals",
+            "MealSurvivalPack",
             "Medicine",
             "MedicineHerbal",
             "MedicineIndustrial",
