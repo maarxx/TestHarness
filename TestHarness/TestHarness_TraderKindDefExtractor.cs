@@ -11,81 +11,248 @@ namespace TestHarness
 {
     class TestHarness_TraderKindDefExtractor
     {
-        public static void printTradersAndItemCategories()
+        public static void printTradersAndItemCategoriesV2()
         {
+            // get all of the TraderKindDefs from the database for the rows
             List<TraderKindDef> traderKindDefs = DefDatabase<TraderKindDef>.AllDefsListForReading;
-            traderKindDefs = traderKindDefs.OrderBy(tdk => Array.IndexOf(seededRowOrder, tdk.defName)).ToList();
-            HashSet<string> setAllAcceptedThings = new HashSet<string>();
-            Dictionary<string, HashSet<string>> maps = new Dictionary<string, HashSet<string>>();
+            // order them based upon pre-seeding
+            traderKindDefs = traderKindDefs.OrderBy(
+                tdk => Array.IndexOf(seededRowOrder, tdk.defName) >= 0 ? Array.IndexOf(seededRowOrder, tdk.defName) : int.MaxValue
+            ).ToList();
 
+            // iterate all of the TraderKindDefs and all of the StockGenerators for all the columns
+            HashSet<string> setAllAcceptedThings = new HashSet<string>();
             foreach (TraderKindDef tkd in traderKindDefs)
             {
-                string traderKindDefName = tkd.defName;
-                HashSet<string> theseAcceptedThings = new HashSet<string>();
                 foreach (StockGenerator sg in tkd.stockGenerators)
                 {
-                    List<string> strings = tryGetStrings(sg).ToList();
-                    foreach (string acceptedThing in tryGetStrings(sg))
+                    foreach (KeyValuePair<string, string> kvp in tryGetStringsV2(sg))
                     {
-                        theseAcceptedThings.Add(acceptedThing);
-                        setAllAcceptedThings.Add(acceptedThing);
+                        setAllAcceptedThings.Add(kvp.Key);
                     }
                 }
-                maps.Add(traderKindDefName, theseAcceptedThings);
+            }
+            // order them based upon pre-seeding
+            List<string> allAcceptedThings = setAllAcceptedThings.OrderBy(
+                str => Array.IndexOf(seededColumnOrder, str) >= 0 ? Array.IndexOf(seededColumnOrder, str) : int.MaxValue
+            ).ToList();
+
+            // seed the whole grid with null strings
+            Dictionary<TraderKindDef, Dictionary<string, string>> table = new Dictionary<TraderKindDef, Dictionary<string, string>>();
+            foreach (TraderKindDef row in traderKindDefs)
+            {
+                Dictionary<string, string> columnsAndValues = new Dictionary<string, string>();
+                foreach (string column in allAcceptedThings)
+                {
+                    columnsAndValues.Add(column, "");
+                }
+                table.Add(row, columnsAndValues);
             }
 
-            List<string> allAcceptedThings = setAllAcceptedThings.OrderBy(str => Array.IndexOf(seededColumnOrder, str) >= 0 ? Array.IndexOf(seededColumnOrder, str) : int.MaxValue).ToList();
+            foreach (var row in table)
+            {
+                TraderKindDef tkd = row.Key;
+                Dictionary<string, string> columnValues = row.Value;
+                foreach (StockGenerator sg in tkd.stockGenerators)
+                {
+                    foreach (KeyValuePair<string,string> kvp in tryGetStringsV2(sg))
+                    {
+                        string oldVal = columnValues.TryGetValue(kvp.Key);
+                        string newVal = kvp.Value;
+                        columnValues.SetOrAdd(kvp.Key, smushValues(oldVal, newVal));
+                    }
+                }
+            }
 
-            string header = "_,";
+            HashSet<KeyValuePair<string, string>> parents = new HashSet<KeyValuePair<string, string>>();
+            foreach (string s in allAcceptedThings)
+            {
+                ThingDef td = DefDatabase<ThingDef>.GetNamedSilentFail(s);
+                if (td != null)
+                {
+                    string[] tradeTags = td.tradeTags?.ToArray() ?? new string[0];
+                    foreach (string tradeTag in tradeTags)
+                    {
+                        foreach (string other in allAcceptedThings)
+                        {
+                            if (s == other) { continue; }
+                            if (tradeTag == other)
+                            {
+                                Log.Message(other + "->" + s);
+                                parents.Add(pair(other, s));
+                            }
+                        }
+                    }
+
+                    foreach (ThingCategoryDef tcd in td.thingCategories)
+                    {
+                        string category = tcd.defName;
+                        foreach (string other in allAcceptedThings)
+                        {
+                            if (s == other) { continue; }
+                            if (category == other)
+                            {
+                                Log.Message(other + "->" + s);
+                                parents.Add(pair(other, s));
+                            }
+                        }
+                    }
+                }
+            }
+
+            foreach (var row in table)
+            {
+                TraderKindDef tkd = row.Key;
+                Dictionary<string, string> columnValues = row.Value;
+                foreach (var link in parents)
+                {
+                    string parentKey = link.Key;
+                    string parentValue = columnValues.TryGetValue(parentKey);
+                    string childKey = link.Value;
+                    string childValue = columnValues.TryGetValue(childKey);
+                    columnValues.SetOrAdd(childKey, smushValues(childValue, parentValue));
+                }
+            }
+
+            string header = "TraderKindDef,";
             foreach (string s in allAcceptedThings)
             {
                 header = header + s + ",";
             }
             Log.Message(header);
 
-            foreach (KeyValuePair<string, HashSet<string>> kvp in maps)
+            foreach (var entry in table)
             {
-                string traderKindDef = kvp.Key;
-                HashSet<string> acceptedThings = kvp.Value;
-                string row = traderKindDef + ",";
-                foreach (string acceptedThing in allAcceptedThings)
+                string row = entry.Key + ",";
+                foreach (string s in allAcceptedThings)
                 {
-                    row = row + (acceptedThings.Contains(acceptedThing) ? acceptedThing : "_") + ",";
+                    row += entry.Value.TryGetValue(s) + ",";
                 }
                 Log.Message(row);
             }
         }
 
-        private static IEnumerable<string> tryGetStrings(StockGenerator sg)
+        private static IEnumerable<KeyValuePair<string, string>> tryGetStringsV2(StockGenerator sg)
         {
-            if (sg is StockGenerator_BuySingleDef) { yield return (sg as StockGenerator_BuySingleDef).thingDef.defName; }
-            else if (sg is StockGenerator_BuyTradeTag) { yield return (sg as StockGenerator_BuyTradeTag).tag; }
-            else if (sg is StockGenerator_Tag) { yield return (sg as StockGenerator_Tag).tradeTag; }
-            else if (sg is StockGenerator_MarketValue) { yield return (sg as StockGenerator_MarketValue).tradeTag; }
-            else if (sg is StockGenerator_Category) { yield return (sg.GetType().GetField("categoryDef", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(sg) as ThingCategoryDef).defName; }
-            else if (sg is StockGenerator_SingleDef) { yield return (sg.GetType().GetField("thingDef", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(sg) as ThingDef).defName; }
-            else if (sg is StockGenerator_Animals)
+            Type sgType = sg.GetType();
+            if (sgType == typeof(StockGenerator_BuySingleDef))
             {
-                foreach (string s in sg.GetType().GetField("tradeTagsSell", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(sg) as List<string>)
+                StockGenerator_BuySingleDef typed = (StockGenerator_BuySingleDef)sg;
+                yield return pair(
+                    typed.thingDef.defName,
+                    "BUY"
+                );
+            }
+            else if (sgType == typeof(StockGenerator_BuyTradeTag))
+            {
+                StockGenerator_BuyTradeTag typed = (StockGenerator_BuyTradeTag)sg;
+                yield return pair(
+                    typed.tag,
+                    "BUY"
+                );
+            }
+            else if (sgType == typeof(StockGenerator_Tag))
+            {
+                StockGenerator_Tag typed = (StockGenerator_Tag)sg;
+                yield return pair(
+                    typed.tradeTag,
+                    ((IntRange)typed.GetType().GetField("thingDefCountRange", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(typed)).ToString()
+                );
+            }
+            else if (sgType == typeof(StockGenerator_MarketValue))
+            {
+                StockGenerator_MarketValue typed = (StockGenerator_MarketValue)sg;
+                yield return pair(
+                    typed.tradeTag,
+                    typed.countRange.ToString().Replace("~", "-")
+                );
+            }
+            else if (sgType == typeof(StockGenerator_Category))
+            {
+                StockGenerator_Category typed = (StockGenerator_Category)sg;
+                yield return pair(
+                    ((ThingCategoryDef)typed.GetType().GetField("categoryDef", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(typed)).defName,
+                    ((IntRange)typed.GetType().GetField("thingDefCountRange", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(typed)).ToString()
+                );
+            }
+            else if (sgType == typeof(StockGenerator_SingleDef))
+            {
+                StockGenerator_SingleDef typed = (StockGenerator_SingleDef)sg;
+                yield return pair(
+                    ((ThingDef)typed.GetType().GetField("thingDef", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(typed)).defName,
+                    typed.countRange.ToString().Replace("~", "-")
+                );
+            }
+            else if (sgType == typeof(StockGenerator_Animals))
+            {
+                StockGenerator_Animals typed = (StockGenerator_Animals)sg;
+                foreach (string s in typed.GetType().GetField("tradeTagsBuy", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(typed) as List<string>)
                 {
-                    yield return s;
+                    yield return pair(
+                        s,
+                        "BUY"
+                    );
                 }
-                foreach (string s in sg.GetType().GetField("tradeTagsBuy", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(sg) as List<string>)
+                foreach (string s in typed.GetType().GetField("tradeTagsSell", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(typed) as List<string>)
                 {
-                    yield return "Buy_" + s;
+                    yield return pair(
+                        s,
+                        ((IntRange)typed.GetType().GetField("kindCountRange", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(typed)).ToString()
+                    );
                 }
             }
-            else if (sg is StockGenerator_MultiDef)
+            else if (sgType == typeof(StockGenerator_MultiDef))
             {
-                foreach (ThingDef td in sg.GetType().GetField("thingDefs", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(sg) as List<ThingDef>)
+                StockGenerator_MultiDef typed = (StockGenerator_MultiDef)sg;
+                foreach (ThingDef td in typed.GetType().GetField("thingDefs", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(typed) as List<ThingDef>)
                 {
-                    yield return td.defName;
+                    yield return pair(
+                        td.defName,
+                        "?"
+                    );
                 }
+            }
+            else if (sgType == typeof(StockGenerator_BuyExpensiveSimple))
+            {
+                StockGenerator_BuyExpensiveSimple typed = (StockGenerator_BuyExpensiveSimple)sg;
+                yield return pair(
+                    sg.GetType().Name,
+                    "BUY"
+                );
             }
             else
             {
-                yield return sg.GetType().Name;
+                yield return pair(
+                    sg.GetType().Name,
+                    "*"
+                );
             }
+        }
+
+        private static KeyValuePair<string,string> pair(string key, string value)
+        {
+            return new KeyValuePair<string, string>(key, value);
+        }
+
+        private static string smushValues(string oldVal, string newVal)
+        {
+            if (newVal == "")
+            {
+                return oldVal;
+            }
+            else if (oldVal == "")
+            {
+                return newVal;
+            }
+            else if (oldVal == "BUY")
+            {
+                return newVal;
+            }
+            else if (newVal == "BUY" && oldVal != "" && oldVal != "BUY")
+            {
+                return oldVal;
+            }
+            return oldVal + "+" + newVal;
         }
 
         private static string[] seededRowOrder = new string[] {
@@ -143,27 +310,27 @@ namespace TestHarness
             "AnimalFarm",
             "AnimalPet",
             "AnimalUncommon",
-            "Buy_AnimalUncommon",
             "AnimalFighter",
             "AnimalExotic",
-            "Buy_AnimalExotic",
             "ComponentIndustrial",
             "ComponentSpacer",
+            "Neutroamine",
+            "ResourcesRaw",
             "Gold",
             "Steel",
             "Plasteel",
-            "Neutroamine",
             "Uranium",
             "WoodLog",
             "Chemfuel",
-            "Cloth",
             "Textiles",
-            "ResourcesRaw",
+            "Cloth",
+            "Dye",
             "Pemmican",
             "Chocolate",
             "FoodRaw",
             "Kibble",
             "Beer",
+            "MealSurvivalPack",
             "FoodMeals",
             "Medicine",
             "MedicineHerbal",
@@ -175,9 +342,7 @@ namespace TestHarness
             "Armor",
             "HiTechArmor",
             "MortarShell",
-            "StockGenerator_Slaves",
-            "Dye",
-            "MealSurvivalPack"
+            "StockGenerator_Slaves"
         };
     }
 }
