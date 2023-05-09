@@ -164,7 +164,7 @@ namespace TestHarness
                 StockGenerator_MarketValue typed = (StockGenerator_MarketValue)sg;
                 yield return pair(
                     typed.tradeTag,
-                    typed.countRange.ToString()
+                    typed.countRange.ToString().Replace("~", "-")
                 );
             }
             else if (sgType == typeof(StockGenerator_Category))
@@ -180,7 +180,7 @@ namespace TestHarness
                 StockGenerator_SingleDef typed = (StockGenerator_SingleDef)sg;
                 yield return pair(
                     ((ThingDef)typed.GetType().GetField("thingDef", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(typed)).defName,
-                    typed.countRange.ToString()
+                    typed.countRange.ToString().Replace("~", "-")
                 );
             }
             else if (sgType == typeof(StockGenerator_Animals))
