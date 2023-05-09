@@ -64,63 +64,56 @@ namespace TestHarness
                 }
             }
 
-            //Log.Message("1");
-            Dictionary<string, string> parents = new Dictionary<string, string>();
+            HashSet<KeyValuePair<string, string>> parents = new HashSet<KeyValuePair<string, string>>();
             foreach (string s in allAcceptedThings)
             {
-                //Log.Message("1.1 // " + s);
                 ThingDef td = DefDatabase<ThingDef>.GetNamedSilentFail(s);
                 if (td != null)
                 {
                     string[] tradeTags = td.tradeTags?.ToArray() ?? new string[0];
                     foreach (string tradeTag in tradeTags)
                     {
-                        //Log.Message("1.3 // " + tradeTag);
                         foreach (string other in allAcceptedThings)
                         {
                             if (s == other) { continue; }
                             if (tradeTag == other)
                             {
-                                Log.Message(s + "->" + other);
-                                parents.SetOrAdd(s, other);
+                                Log.Message(other + "->" + s);
+                                parents.Add(pair(other, s));
                             }
                         }
                     }
 
-                    //Log.Message("1.4 // " + td.thingCategories);
                     foreach (ThingCategoryDef tcd in td.thingCategories)
                     {
                         string category = tcd.defName;
-                        //Log.Message("1.5 // " + category);
                         foreach (string other in allAcceptedThings)
                         {
                             if (s == other) { continue; }
                             if (category == other)
                             {
-                                Log.Message(s + "->" + other);
-                                parents.SetOrAdd(s, other);
+                                Log.Message(other + "->" + s);
+                                parents.Add(pair(other, s));
                             }
                         }
                     }
                 }
             }
 
-            //Log.Message("2");
             foreach (var row in table)
             {
                 TraderKindDef tkd = row.Key;
                 Dictionary<string, string> columnValues = row.Value;
                 foreach (var link in parents)
                 {
-                    string childKey = link.Key;
-                    string parentKey = link.Value;
-                    string childValue = columnValues.TryGetValue(childKey);
+                    string parentKey = link.Key;
                     string parentValue = columnValues.TryGetValue(parentKey);
+                    string childKey = link.Value;
+                    string childValue = columnValues.TryGetValue(childKey);
                     columnValues.SetOrAdd(childKey, smushValues(childValue, parentValue));
                 }
             }
 
-            //Log.Message("3");
             string header = "TraderKindDef,";
             foreach (string s in allAcceptedThings)
             {
@@ -142,7 +135,6 @@ namespace TestHarness
         private static IEnumerable<KeyValuePair<string, string>> tryGetStringsV2(StockGenerator sg)
         {
             Type sgType = sg.GetType();
-            //Log.Message(sgType.ToString());
             if (sgType == typeof(StockGenerator_BuySingleDef))
             {
                 StockGenerator_BuySingleDef typed = (StockGenerator_BuySingleDef)sg;
@@ -236,7 +228,15 @@ namespace TestHarness
 
         private static string smushValues(string oldVal, string newVal)
         {
-            if (oldVal == "" || oldVal == "BUY")
+            if (newVal == "")
+            {
+                return oldVal;
+            }
+            else if (oldVal == "")
+            {
+                return newVal;
+            }
+            else if (oldVal == "BUY")
             {
                 return newVal;
             }
