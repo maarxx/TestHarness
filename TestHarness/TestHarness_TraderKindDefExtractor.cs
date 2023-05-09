@@ -183,6 +183,23 @@ namespace TestHarness
                     typed.countRange.ToString().Replace("~", "-")
                 );
             }
+            else if (sgType == typeof(StockGenerator_Techprints))
+            {
+                StockGenerator_Techprints typed = (StockGenerator_Techprints)sg;
+                List<CountChance> chances = (List<CountChance>)typed.GetType().GetField("countChances", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(typed);
+                int min = int.MaxValue;
+                int max = int.MinValue;
+                foreach (CountChance cc in chances)
+                {
+                    int val = cc.count;
+                    if (val < min) { min = val; }
+                    if (val > max) { max = val; }
+                }
+                yield return pair(
+                    typed.GetType().Name,
+                    min + "-" + max
+                );
+            }
             else if (sgType == typeof(StockGenerator_SingleDef))
             {
                 StockGenerator_SingleDef typed = (StockGenerator_SingleDef)sg;
