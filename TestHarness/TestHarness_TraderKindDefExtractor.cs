@@ -212,6 +212,14 @@ namespace TestHarness
                     );
                 }
             }
+            else if (sgType == typeof(StockGenerator_BuyExpensiveSimple))
+            {
+                StockGenerator_BuyExpensiveSimple typed = (StockGenerator_BuyExpensiveSimple)sg;
+                yield return pair(
+                    sg.GetType().Name,
+                    "BUY"
+                );
+            }
             else
             {
                 yield return pair(
@@ -306,21 +314,23 @@ namespace TestHarness
             "AnimalExotic",
             "ComponentIndustrial",
             "ComponentSpacer",
+            "Neutroamine",
+            "ResourcesRaw",
             "Gold",
             "Steel",
             "Plasteel",
-            "Neutroamine",
             "Uranium",
             "WoodLog",
             "Chemfuel",
-            "Cloth",
             "Textiles",
-            "ResourcesRaw",
+            "Cloth",
+            "Dye",
             "Pemmican",
             "Chocolate",
             "FoodRaw",
             "Kibble",
             "Beer",
+            "MealSurvivalPack",
             "FoodMeals",
             "Medicine",
             "MedicineHerbal",
@@ -332,9 +342,7 @@ namespace TestHarness
             "Armor",
             "HiTechArmor",
             "MortarShell",
-            "StockGenerator_Slaves",
-            "Dye",
-            "MealSurvivalPack"
+            "StockGenerator_Slaves"
         };
     }
 }
