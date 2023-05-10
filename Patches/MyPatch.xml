@@ -22,4 +22,48 @@
           </value>
       </match>
   </Operation>
+
+  <Operation Class="PatchOperationConditional">
+      <xpath>/Defs/ThingDef[defName="CraftingSpot"]/comps</xpath>
+      <nomatch Class="PatchOperationAdd">
+          <xpath>/Defs/ThingDef[defName="CraftingSpot"]</xpath>
+          <value>
+              <comps>
+                  <li Class="CompProperties_AssignableToPawn">
+                      <compClass>CompAssignableToPawn</compClass>
+                  </li>
+              </comps>
+          </value>
+      </nomatch>
+      <match Class="PatchOperationAdd">
+          <xpath>/Defs/ThingDef[defName="CraftingSpot"]/comps</xpath>
+          <value>
+              <li Class="CompProperties_AssignableToPawn">
+                  <compClass>CompAssignableToPawn</compClass>
+              </li>
+          </value>
+      </match>
+  </Operation>
+
+  <Operation Class="PatchOperationConditional">
+      <xpath>/Defs/ThingDef[defName="ButcherSpot"]/comps</xpath>
+      <nomatch Class="PatchOperationAdd">
+          <xpath>/Defs/ThingDef[defName="ButcherSpot"]</xpath>
+          <value>
+              <comps>
+                  <li Class="CompProperties_AssignableToPawn">
+                      <compClass>CompAssignableToPawn</compClass>
+                  </li>
+              </comps>
+          </value>
+      </nomatch>
+      <match Class="PatchOperationAdd">
+          <xpath>/Defs/ThingDef[defName="ButcherSpot"]/comps</xpath>
+          <value>
+              <li Class="CompProperties_AssignableToPawn">
+                  <compClass>CompAssignableToPawn</compClass>
+              </li>
+          </value>
+      </match>
+  </Operation>
 </Patch>
