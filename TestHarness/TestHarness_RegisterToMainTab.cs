@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using ModButtons;
+using RimWorld;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using Verse;
+using Verse.AI;
 
 namespace TestHarness
 {
@@ -28,6 +30,55 @@ namespace TestHarness
         static void Prefix(MainTabWindow_ModButtons __instance, ref Rect canvas)
         {
             TestHarness_RegisterToMainTab.ensureMainTabRegistered();
+        }
+    }
+
+    // RimWorld.GenConstruct
+    // public static bool CanPlaceBlueprintOver(BuildableDef newDef, ThingDef oldDef)
+    [HarmonyPatch(typeof(GenConstruct))]
+    [HarmonyPatch("CanPlaceBlueprintOver")]
+    class Patch_GenConstruct_CanPlaceBlueprintOver
+    {
+        static bool Prefix(BuildableDef newDef, ThingDef oldDef, ref bool __result)
+        {
+            Log.Message("HELLO FROM Patch_GenConstruct_CanPlaceBlueprintOver");
+            if (oldDef.Minifiable)
+            {
+                __result = true;
+                return false;
+            }
+            return true;
+        }
+    }
+
+    // RimWorld.GenConstruct
+    // public static Job HandleBlockingThingJob(Thing constructible, Pawn worker, bool forced = false)
+    [HarmonyPatch(typeof(GenConstruct))]
+    [HarmonyPatch("HandleBlockingThingJob")]
+    class Patch_GenConstruct_HandleBlockingThingJob
+    {
+        static bool Prefix(Thing constructible, Pawn worker, bool forced, ref Job __result)
+        {
+            Log.Message("HELLO FROM Patch_GenConstruct_HandleBlockingThingJob");
+            Thing thing = GenConstruct.FirstBlockingThing(constructible, worker);
+
+            // lifting this from original for performance reasons i think
+            if (thing == null)
+            {
+                __result = null;
+                return false;
+            }
+
+            if (thing.def.Minifiable && thing.def.category == ThingCategory.Building)
+            {
+                if (((Building)thing).DeconstructibleBy(worker.Faction))
+                {
+                    __result = JobMaker.MakeJob(JobDefOf.Uninstall, thing);
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 
