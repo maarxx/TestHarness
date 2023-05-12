@@ -73,8 +73,15 @@ namespace TestHarness
             {
                 if (((Building)thing).DeconstructibleBy(worker.Faction))
                 {
-                    __result = JobMaker.MakeJob(JobDefOf.Uninstall, thing);
-                    return false;
+                    if (!thing.Map.designationManager.AllDesignationsOn(thing).Any(p => p.def == DesignationDefOf.Uninstall))
+                    {
+                        thing.Map.designationManager.AddDesignation(new Designation(thing, DesignationDefOf.Uninstall));
+                    }
+                    if (worker.CanReserveAndReach(thing, PathEndMode.Touch, worker.NormalMaxDanger(), 1, -1, null, forced))
+                    {
+                        __result = JobMaker.MakeJob(JobDefOf.Uninstall, thing);
+                        return false;
+                    }
                 }
             }
 
