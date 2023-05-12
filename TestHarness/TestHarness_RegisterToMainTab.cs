@@ -89,6 +89,36 @@ namespace TestHarness
         }
     }
 
+    // RimWorld.GenConstruct
+    // public static AcceptanceReport CanPlaceBlueprintAt(BuildableDef entDef, IntVec3 center, Rot4 rot, Map map, bool godMode = false, Thing thingToIgnore = null, Thing thing = null, ThingDef stuffDef = null)
+    [HarmonyPatch(typeof(GenConstruct))]
+    [HarmonyPatch("CanPlaceBlueprintAt")]
+    class Patch_GenConstruct_CanPlaceBlueprintAt
+    {
+        static void Postfix(BuildableDef entDef, IntVec3 center, Rot4 rot, Map map, bool godMode, Thing thingToIgnore, Thing thing, ThingDef stuffDef, ref AcceptanceReport __result)
+        {
+            if (__result.Reason == "IdenticalThingExists".Translate())
+            {
+                __result = AcceptanceReport.WasAccepted;
+            }
+        }
+    }
+
+    // RimWorld.Designator_Install
+    // public override AcceptanceReport CanDesignateCell(IntVec3 c)
+    [HarmonyPatch(typeof(Designator_Install))]
+    [HarmonyPatch("CanDesignateCell")]
+    class Patch_Designator_Install_CanDesignateCell
+    {
+        static void Postfix(Designator_Install __instance, IntVec3 c, ref AcceptanceReport __result)
+        {
+            if (__result.Reason == "IdenticalThingExists".Translate())
+            {
+                __result = AcceptanceReport.WasAccepted;
+            }
+        }
+    }
+
     class TestHarness_RegisterToMainTab
     {
 
